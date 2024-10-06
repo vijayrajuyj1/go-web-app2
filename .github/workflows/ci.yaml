@@ -39,7 +39,7 @@ jobs:
       with:
         version: v1.56.2
         install-mode: binary
-        github-token: ${{ secrets.GITHUB_TOKEN }}  # Secure token
+        github-token: ${{ secrets.TOKEN }}  # Secure token
         only-new-issues: false
         skip-cache: false
         skip-save-cache: false
