@@ -34,17 +34,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Install golangci-lint
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.56.2
+
     - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v6
-      with:
-        version: v1.56.2
-        install-mode: binary
-        github-token: ${{ secrets.TOKEN }}  # Secure token
-        only-new-issues: false
-        skip-cache: false
-        skip-save-cache: false
-        problem-matchers: false
-        cache-invalidation-interval: 7
+      run: |
+        golangci-lint run --disable typecheck --exclude '/opt/hostedtoolcache/.*'
 
   push:
     runs-on: ubuntu-latest
@@ -69,7 +65,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/go-web-app:${{github.run_id}}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/go-web-app:${{ github.run_id }}
 
   update-newtag-in-helm-chart:
     runs-on: ubuntu-latest
@@ -79,11 +75,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.TOKEN }}
 
     - name: Update tag in Helm chart
       run: |
-        sed -i 's/tag: .*/tag: "${{github.run_id}}"/' helm/helm1/values.yaml
+        sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' helm/helm1/values.yaml
 
     - name: Commit and push changes
       run: |
